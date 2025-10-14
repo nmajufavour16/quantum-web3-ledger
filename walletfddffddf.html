@@ -377,9 +377,9 @@ span.h4.d-block.coin-name {
   <!-- NAVBAR -->
   <nav class="navbar navbar-expand-lg sticky-top">
     <div class="container">
-      <a class="navbar-brand" href="#" style="font-size: 1.2rem;">
-                QUANTUM WEB3 LEDGER
-      </a>
+        <a class="navbar-brand" href="#" style="font-size: 1.2rem;">
+            <span style="color: #FFD700;">QUANTUM</span> <span style="color: #FFFFFF;">WEB3</span> <span style="color: #1DA1F2;">LEDGER</span>
+        </a>
       <button
         class="navbar-toggler navbar-dark"
         type="button"
