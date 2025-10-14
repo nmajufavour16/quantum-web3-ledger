@@ -1,0 +1,14 @@
+{
+       "name": "Quantum-Web3-Ledger",
+       "description": "A web application for processing wallet submissions",
+       "require": {
+           "php": "^7.4 || ^8.0",
+           "phpmailer/phpmailer": "^6.8",
+           "vlucas/phpdotenv": "^5.5"
+       },
+       "autoload": {
+           "psr-4": {
+               "QuantumWeb3\\": "src/"
+           }
+       }
+   }
