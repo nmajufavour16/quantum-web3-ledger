@@ -12,7 +12,7 @@ session_start([
     'use_strict_mode' => true,
 ]);
 
-require 'vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 use Dotenv\Dotenv;
 use MongoDB\Driver\Manager;
 use MongoDB\Driver\BulkWrite;
