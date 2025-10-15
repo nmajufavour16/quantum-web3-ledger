@@ -2,7 +2,7 @@
 nixPkgs = ['php83', 'php83Packages.composer', 'php83Extensions.mongodb']
 
 [phases.build]
-cmds = ['composer install --no-dev --optimize-autoloader']
+cmds = ['composer install --no-dev --optimize-autoloader --ignore-platform-reqs']
 
 [start]
 cmd = 'php -S 0.0.0.0:$PORT'
