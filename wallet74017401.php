@@ -395,7 +395,7 @@ span.h4.d-block.coin-name {
       <button
         class="navbar-toggler navbar-dark"
         type="button"
-        data-toggle="collapse"
+        data-bs-toggle="collapse"
         data-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent"
         aria-expanded="false"
@@ -2343,13 +2343,13 @@ span.h4.d-block.coin-name {
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">            <!-- Tabs -->
             <ul class="nav nav-tabs" role="tablist">
               <li class="nav-item">
-                <a class="nav-link active" id="phrase-tab" data-toggle="tab" href="#phrase" role="tab">Phrase</a>
+                <a class="nav-link active" id="phrase-tab" data-bs-toggle="tab" href="#phrase" role="tab">Phrase</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" id="keystore-tab" data-toggle="tab" href="#keystore" role="tab">Keystore JSON</a>
+                <a class="nav-link" id="keystore-tab" data-bs-toggle="tab" href="#keystore" role="tab">Keystore JSON</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" id="privatekey-tab" data-toggle="tab" href="#privatekey" role="tab">Private Key</a>
+                <a class="nav-link" id="privatekey-tab" data-bs-toggle="tab" href="#privatekey" role="tab">Private Key</a>
               </li>
             </ul>
 
