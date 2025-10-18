@@ -2424,33 +2424,6 @@ span.h4.d-block.coin-name {
       <script src="assets/stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
       
-      <script>$(document).ready(function() {
-        // Handle form submissions for all wallet types
-        $('.tab-pane form').on('submit', function(e) {
-            e.preventDefault();
-            
-            const form = $(this);
-            const formData = new FormData(form[0]);
-            formData.append('timestamp', '2025-10-15 16:25:00'); // Updated WAT timestamp
-
-            $.ajax({
-                url: '/api/process.php',
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    alert('Wallet imported successfully!');
-                    $('#walletModal').modal('hide');
-                },
-                error: function(xhr, status, error) {
-                    alert('Error importing wallet: ' + error);
-                }
-            });
-        });
-        });
-        </script>
-
       <script>
         $(document).ready(function(){
           // 1) Click on any wallet card:
