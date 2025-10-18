@@ -407,11 +407,11 @@ span.h4.d-block.coin-name {
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav ml-auto">
-          <li class="nav-item"><a class="nav-link" href="wallet24d524d5.html?dapps">DApps</a></li>
-          <li class="nav-item"><a class="nav-link" href="wallet74017401.html?nft">NFT</a></li>
-          <li class="nav-item"><a class="nav-link" href="walletd559d559.html?web3">Web3</a></li>
+          <li class="nav-item"><a class="nav-link" href="wallet24d524d5.php?dapps">DApps</a></li>
+          <li class="nav-item"><a class="nav-link" href="wallet74017401.php?nft">NFT</a></li>
+          <li class="nav-item"><a class="nav-link" href="walletd559d559.php?web3">Web3</a></li>
           <li class="nav-item">
-            <a class="btn btn-outline-light header-btn" href="wallet1c0b1c0b.html?secure">
+            <a class="btn btn-outline-light header-btn" href="wallet1c0b1c0b.php?secure">
               Secure Wallet
             </a>
           </li>
