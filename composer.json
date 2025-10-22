@@ -1,9 +1,9 @@
 {
-    "name": "Quantum-Web3-Ledger",
+    "name": "quantum/quantumweb3ledger",
     "description": "A web application for processing wallet submissions",
     "require": {
         "php": "^8.3",
-        "mongodb/mongodb": "^1.19",
+        "mongodb/mongodb": "^2.0",
         "phpmailer/phpmailer": "^6.8",
         "vlucas/phpdotenv": "^5.5"
     },
