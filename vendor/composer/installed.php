@@ -3,7 +3,7 @@
         'name' => 'quantum/quantumweb3ledger',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'a6fccfe0b389723f44bfc8f4a024a629a30e51ac',
+        'reference' => '192ec749bc08cd0321ded8b6b190534c30289fe8',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -64,7 +64,7 @@
         'quantum/quantumweb3ledger' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'a6fccfe0b389723f44bfc8f4a024a629a30e51ac',
+            'reference' => '192ec749bc08cd0321ded8b6b190534c30289fe8',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
