@@ -1,33 +1,31 @@
 <?php
-// Netlify function wrapper
-require __DIR__ . '/../vendor/autoload.php';
+header('Content-Type: application/json; charset=UTF-8');  // Always JSON, first thing
 
-use Dotenv\Dotenv;
-use MongoDB\Driver\Manager;
-use MongoDB\Driver\BulkWrite;
-use MongoDB\Driver\Exception\Exception as MongoDBException;
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception as PHPMailerException;
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/../error.log');
 
-$handler = function($event, $context) {
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-    ini_set('log_errors', 1);
-    ini_set('error_log', __DIR__ . '/../error.log');
-
+try {
     session_start([
         'cookie_secure' => true,
         'cookie_httponly' => true,
-        'use_strict_mode' => true
+        'use_strict_mode' => true,
     ]);
+
+    require __DIR__ . '/../vendor/autoload.php';
+    use Dotenv\Dotenv;
+    use MongoDB\Driver\Manager;
+    use MongoDB\Driver\BulkWrite;
+    use MongoDB\Driver\Exception\Exception as MongoDBException;
+    use PHPMailer\PHPMailer\PHPMailer;
+    use PHPMailer\PHPMailer\Exception as PHPMailerException;
 
     $dotenv = Dotenv::createImmutable(__DIR__ . '/..');
     $dotenv->load();
 
     $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
-
-    header('Content-Type: application/json; charset=UTF-8');
 
     if (!isset($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -107,7 +105,7 @@ $handler = function($event, $context) {
 
     try {
         $mongoUri = "mongodb://" . $_ENV['DB_USER'] . ":" . $_ENV['DB_PASS'] . "@" . $_ENV['DB_HOST'] . ":" . ($_ENV['DB_PORT'] ?? '27017') . "/" . $_ENV['DB_NAME'] . "?authSource=admin&directConnection=true";
-        error_log("Attempting MongoDB connection");
+        error_log("Attempting MongoDB connection with URI: mongodb://" . $_ENV['DB_USER'] . ":***@" . $_ENV['DB_HOST'] . ":" . ($_ENV['DB_PORT'] ?? '27017') . "/" . $_ENV['DB_NAME']);
         $manager = new Manager($mongoUri);
         error_log("MongoDB connection successful");
         $bulk = new BulkWrite;
@@ -121,29 +119,29 @@ $handler = function($event, $context) {
         $bulk->insert($document);
         $result = $manager->executeBulkWrite($_ENV['DB_NAME'] . '.submissions', $bulk);
         if ($result->getInsertedCount() !== 1) {
-            throw new MongoDBException("Insert failed");
+            throw new MongoDBException("Insert failed - count: " . $result->getInsertedCount());
         }
         error_log("MongoDB insert successful for $wallet");
     } catch (MongoDBException $e) {
-        error_log("MongoDB error: " . $e->getMessage());
+        error_log("MongoDB error in " . __FILE__ . ": " . $e->getMessage());
         http_response_code(500);
         echo json_encode(['error' => 'Database Error: ' . $e->getMessage()]);
         exit;
     }
 
-    error_log("Attempting email");
+    error_log("Attempting to send email");
 
     if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
-        error_log("PHPMailer not found");
+        error_log("PHPMailer not found in " . __FILE__);
         http_response_code(500);
-        echo json_encode(['error' => 'Submission saved (Email unavailable)']);
+        echo json_encode(['error' => 'Submission Saved (Email unavailable)']);
         exit;
     }
 
     $mail = new PHPMailer(true);
     try {
         if (!isset($_ENV['SMTP_HOST'], $_ENV['SMTP_USER'], $_ENV['SMTP_PASS'], $_ENV['TO_EMAIL'])) {
-            error_log("Email config missing");
+            error_log("Email configuration missing in " . __FILE__);
             throw new PHPMailerException("Email service unavailable");
         }
         $mail->isSMTP();
@@ -159,10 +157,10 @@ $handler = function($event, $context) {
         $mail->Subject = "New $submission_type Submission from $wallet";
         $mail->Body = "Wallet: $wallet\nType: $submission_type\nData: $data\nEmail: $email\nTime: " . date('Y-m-d H:i:s');
         $mail->send();
-        error_log("Email sent for $wallet");
+        error_log("Email sent successfully for $wallet");
         echo json_encode(['success' => 'Submission received and emailed']);
     } catch (PHPMailerException $e) {
-        error_log("Email error: " . $mail->ErrorInfo);
+        error_log("Email error in " . __FILE__ . ": " . $mail->ErrorInfo);
         http_response_code(500);
         echo json_encode(['error' => 'Submission saved (Email failed: ' . $mail->ErrorInfo . ')']);
     }
@@ -174,8 +172,11 @@ $handler = function($event, $context) {
         $manager->executeBulkWrite($_ENV['DB_NAME'] . '.submissions', $bulk);
         error_log("Cleanup executed");
     } catch (MongoDBException $e) {
-        error_log("Cleanup error: " . $e->getMessage());
+        error_log("Cleanup error in " . __FILE__ . ": " . $e->getMessage());
     }
-};
-$handler($_SERVER, null);
+} catch (Exception $e) {
+    error_log("Uncaught error in " . __FILE__ . ": " . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['error' => 'Uncaught Server Error: ' . $e->getMessage()]);
+}
 ?>
