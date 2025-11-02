@@ -1,6 +1,10 @@
 # Environment variables
 .env
 
+# Composer
+/vendor/
+/.env
+
 # Logs
 *.log
 logs/
