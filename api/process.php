@@ -1,25 +1,27 @@
 <?php
-header('Content-Type: application/json; charset=UTF-8');
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__.'/../error.log');
-
+// 1. Secure session & headers
+ob_start();
 session_start(['cookie_secure'=>true,'cookie_httponly'=>true,'use_strict_mode'=>true]);
+header('Content-Type: application/json; charset=UTF-8');
 
-// CSRF — generate on every page load
+// 2. Generate CSRF token
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Return token for frontend
+// 3. GET = return token ONLY
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     echo json_encode(['csrf_token' => $_SESSION['csrf_token']]);
     exit;
 }
 
-require __DIR__.'/../vendor/autoload.php';
+// 4. POST = load deps safely
+require_once __DIR__.'/../vendor/autoload.php';
 use Dotenv\Dotenv;
+$dotenv = Dotenv::createImmutable(__DIR__.'/..');
+$dotenv->load();
+// ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+require __DIR__.'/../vendor/autoload.php';
 use MongoDB\Driver\Manager;
 use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Exception\Exception as MongoDBException;

@@ -401,19 +401,13 @@ if (!isset($_SESSION['csrf_token'])) {
             background-color: #ffffff;
         }
     </style>
+
+    <script>
+        fetch('/api/process.php').then(r => r.json()).then(d => {
+            document.querySelectorAll('input[name=csrf_token]').forEach(i => i.value = d.csrf_token);
+        });
+    </script>
 </head>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        fetch('/api/session.php')
-            .then(response => response.json())
-            .then(data => {
-                document.querySelectorAll('input[name="csrf_token"]').forEach(input => {
-                    input.value = data.csrf_token;
-                });
-            })
-            .catch(error => console.error('CSRF fetch error:', error));
-    });
-</script>
 
 <body>
     <div id="preloader">
