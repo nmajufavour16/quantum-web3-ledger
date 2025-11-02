@@ -1,4 +1,20 @@
 <?php
+// 1. SESSION + CSRF FIRST — BEFORE ANY OUTPUT
+session_start(['cookie_secure'=>true,'cookie_httponly'=>true,'use_strict_mode'=>true]);
+
+// 2. Generate token ONCE per session
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// 3. Output token for frontend
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    header('Content-Type: application/json');
+    echo json_encode(['csrf_token' => $_SESSION['csrf_token']]);
+    exit;
+}
+
+// 4. NOW we can safely output JSON for POST
 header('Content-Type: application/json; charset=UTF-8');
 
 ini_set('display_errors', 1);
