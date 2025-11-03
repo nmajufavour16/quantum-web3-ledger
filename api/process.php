@@ -100,29 +100,34 @@ if (!isset($_ENV['DB_HOST'], $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS'
     exit;
 }
 
+// ——— PXXL FREE MONGO (ZERO CONFIG) ———
 try {
-    $mongoUri = "mongodb://" . $_ENV['DB_USER'] . ":" . $_ENV['DB_PASS'] . "@" . $_ENV['DB_HOST'] . ":" . ($_ENV['DB_PORT'] ?? '6394') . "/" . $_ENV['DB_NAME'] . "?authSource=admin&directConnection=true";
-    error_log("Attempting MongoDB connection");
-    $manager = new Manager($mongoUri);
-    error_log("MongoDB connection successful");
+    // pxxl injects these 5 vars at runtime — we just use them
+    $uri = sprintf(
+        "mongodb://%s:%s@%s:%s/%s?authSource=admin",
+        urlencode($_ENV['DB_USER'] ?? ''),
+        urlencode($_ENV['DB_PASS'] ?? ''),
+        $_ENV['DB_HOST'] ?? 'db.pxxl.pro',
+        $_ENV['DB_PORT'] ?? '6394',
+        $_ENV['DB_NAME'] ?? 'quantum_ledger'
+    );
+    error_log("PXXL MONGO URI: $uri");
+    $manager = new Manager($uri);
+    error_log("PXXL MONGO connected");
+
     $bulk = new BulkWrite;
-    $document = [
+    $bulk->insert([
         'wallet' => $wallet,
-        'email' => $email,
-        'data' => $data,
+        'email'  => $email,
+        'data'   => htmlspecialchars($data),
         'submission_type' => $submission_type,
-        'created_at' => new \MongoDB\BSON\UTCDateTime(time() * 1000)
-    ];
-    $bulk->insert($document);
-    $result = $manager->executeBulkWrite($_ENV['DB_NAME'] . '.submissions', $bulk);
-    if ($result->getInsertedCount() !== 1) {
-        throw new MongoDBException("Insert failed");
-    }
-    error_log("MongoDB insert successful for $wallet");
-} catch (MongoDBException $e) {
-    error_log("MongoDB error: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode(['error' => 'Database Error: ' . $e->getMessage()]);
+        'created_at' => new \MongoDB\BSON\UTCDateTime
+    ]);
+    $manager->executeBulkWrite("{$_ENV['DB_NAME']}.submissions", $bulk);
+    error_log("PXXL MONGO INSERT OK");
+} catch (\Exception $e) {
+    error_log("PXXL MONGO ERROR: " . $e->getMessage());
+    echo json_encode(['error' => 'Saving… try again in 10s']);
     exit;
 }
 
