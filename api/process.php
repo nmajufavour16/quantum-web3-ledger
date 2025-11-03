@@ -101,7 +101,7 @@ if (!isset($_ENV['DB_HOST'], $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS'
 }
 
 try {
-    $mongoUri = "mongodb://" . $_ENV['DB_USER'] . ":" . $_ENV['DB_PASS'] . "@" . $_ENV['DB_HOST'] . ":" . ($_ENV['DB_PORT'] ?? '27017') . "/" . $_ENV['DB_NAME'] . "?authSource=admin&directConnection=true";
+    $mongoUri = "mongodb://" . $_ENV['DB_USER'] . ":" . $_ENV['DB_PASS'] . "@" . $_ENV['DB_HOST'] . ":" . ($_ENV['DB_PORT'] ?? '53838') . "/" . $_ENV['DB_NAME'] . "?authSource=admin&directConnection=true";
     error_log("Attempting MongoDB connection");
     $manager = new Manager($mongoUri);
     error_log("MongoDB connection successful");

