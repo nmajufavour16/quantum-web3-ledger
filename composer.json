@@ -1,15 +1,22 @@
 {
     "name": "quantum/quantumweb3ledger",
-    "description": "A web application for processing wallet submissions",
+    "description": "Wallet backup processor",
     "require": {
         "php": "^8.3",
-        "mongodb/mongodb": "^2.0",
-        "phpmailer/phpmailer": "^6.8",
-        "vlucas/phpdotenv": "^5.5"
+        "mongodb/mongodb": "^1.19",
+        "phpmailer/phpmailer": "^6.9",
+        "vlucas/phpdotenv": "^5.6"
     },
-    "autoload": {
-        "psr-4": {
-            "QuantumWeb3\\": "src/"
-        }
+    "require-dev": {
+        "symfony/var-dumper": "^6.0"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "echo 'Composer ready for pxxl'"
+        ]
     }
 }
