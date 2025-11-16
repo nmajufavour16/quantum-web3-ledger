@@ -93,12 +93,14 @@ if (isset($_SESSION['last_submission']) && (time() - $_SESSION['last_submission'
 }
 $_SESSION['last_submission'] = time();
 
+/*
 if (!isset($_ENV['DB_HOST'], $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS'])) {
     error_log("Database configuration missing in " . __FILE__);
     http_response_code(500);
     echo json_encode(['error' => 'Server Error - DB Config']);
     exit;
 }
+*/
 
 // ——— PXXL FREE MONGO (ZERO CONFIG) ———
 try {
