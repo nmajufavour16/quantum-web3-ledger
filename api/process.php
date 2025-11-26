@@ -10,10 +10,9 @@ ini_set('log_errors', 1);
 error_reporting(E_ALL);
 ini_set('error_log', __DIR__ . '/../error.log');
 
-// Load Composer dependencies
+// Load Composer (or custom) autoloader
 require __DIR__ . '/../vendor/autoload.php';
 
-use Dotenv\Dotenv;
 use MongoDB\Driver\Manager;
 use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Exception\Exception as MongoDBException;
@@ -21,6 +20,49 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception as PHPMailerException;
 
 // --- HELPER FUNCTION ---
+
+/**
+ * Minimal .env loader to avoid external Dotenv dependency.
+ * Supports simple "KEY=VALUE" lines, ignoring comments and blanks.
+ */
+function loadEnv(string $filepath): void {
+    if (!is_file($filepath) || !is_readable($filepath)) {
+        error_log("No readable .env file found at $filepath");
+        return;
+    }
+
+    $lines = file($filepath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if ($lines === false) {
+        error_log("Failed to read .env file at $filepath");
+        return;
+    }
+
+    foreach ($lines as $line) {
+        $trimmed = ltrim($line);
+        if ($trimmed === '' || $trimmed[0] === '#') {
+            continue; // Skip comments/empty
+        }
+
+        $parts = explode('=', $line, 2);
+        if (count($parts) !== 2) {
+            // Ignore malformed lines instead of throwing like vlucas/phpdotenv
+            continue;
+        }
+
+        $name = trim($parts[0]);
+        $value = trim($parts[1]);
+
+        // Strip optional surrounding quotes
+        $value = trim($value, " \t\n\r\0\x0B'\"");
+
+        if ($name === '') {
+            continue;
+        }
+
+        $_ENV[$name] = $value;
+        putenv($name . '=' . $value);
+    }
+}
 
 /**
  * Sends a JSON response and exits the script.
@@ -141,14 +183,8 @@ session_start([
     'use_strict_mode' => true
 ]);
 
-// Load .env variables
-try {
-    $dotenv = Dotenv::createImmutable(__DIR__ . '/..');
-    $dotenv->load();
-} catch (\Exception $e) {
-    error_log("Failed to load .env file: " . $e->getMessage());
-    send_json_response(['error' => 'Server configuration error.'], 500);
-}
+// Load .env variables (non-fatal if missing or partially malformed)
+loadEnv(__DIR__ . '/../.env');
 
 // 1. Check Request Method
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
